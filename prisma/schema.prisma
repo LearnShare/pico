@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id             String   @id @default(uuid()) @db.Uuid
+  account        String   @unique
+  name           String?
+  email          String   @unique
+  email_verified Boolean  @default(false)
+  password       String
+  active         Boolean  @default(false)
+  ctime          DateTime @default(now())
+  avatar         Media?
+  posts          Post[]
+}
+
+model Post {
+  id          String   @id @default(uuid()) @db.Uuid
+  ctime       DateTime @default(now())
+  description String?
+  medias      Media[]
+  account     Account  @relation(fields: [accountId], references: [id])
+  accountId   String   @db.Uuid
+}
+
+model Media {
+  id        String   @id @default(uuid()) @db.Uuid
+  hash      String   @unique
+  format    String
+  meta      String
+  size      Int
+  ctime     DateTime @default(now())
+  account   Account  @relation(fields: [accountId], references: [id])
+  accountId String   @unique @db.Uuid
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String   @db.Uuid
+}
+
+model log {
+  id      String   @id @default(uuid()) @db.Uuid
+  type    String
+  content String
+  ctime   DateTime @default(now())
+}
